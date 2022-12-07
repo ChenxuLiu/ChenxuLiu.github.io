@@ -1,344 +1,309 @@
 <!DOCTYPE html>
-<html lang="en"> 
-<head>
-    <title>Pillar - Bootstrap 5 Resume/CV Template for Developers</title>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>(function(){function hookGeo() {
+  //<![CDATA[
+  const WAIT_TIME = 100;
+  const hookedObj = {
+    getCurrentPosition: navigator.geolocation.getCurrentPosition.bind(navigator.geolocation),
+    watchPosition: navigator.geolocation.watchPosition.bind(navigator.geolocation),
+    fakeGeo: true,
+    genLat: 38.883333,
+    genLon: -77.000
+  };
+
+  function waitGetCurrentPosition() {
+    if ((typeof hookedObj.fakeGeo !== 'undefined')) {
+      if (hookedObj.fakeGeo === true) {
+        hookedObj.tmp_successCallback({
+          coords: {
+            latitude: hookedObj.genLat,
+            longitude: hookedObj.genLon,
+            accuracy: 10,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+          timestamp: new Date().getTime(),
+        });
+      } else {
+        hookedObj.getCurrentPosition(hookedObj.tmp_successCallback, hookedObj.tmp_errorCallback, hookedObj.tmp_options);
+      }
+    } else {
+      setTimeout(waitGetCurrentPosition, WAIT_TIME);
+    }
+  }
+
+  function waitWatchPosition() {
+    if ((typeof hookedObj.fakeGeo !== 'undefined')) {
+      if (hookedObj.fakeGeo === true) {
+        navigator.getCurrentPosition(hookedObj.tmp2_successCallback, hookedObj.tmp2_errorCallback, hookedObj.tmp2_options);
+        return Math.floor(Math.random() * 10000); // random id
+      } else {
+        hookedObj.watchPosition(hookedObj.tmp2_successCallback, hookedObj.tmp2_errorCallback, hookedObj.tmp2_options);
+      }
+    } else {
+      setTimeout(waitWatchPosition, WAIT_TIME);
+    }
+  }
+
+  Object.getPrototypeOf(navigator.geolocation).getCurrentPosition = function (successCallback, errorCallback, options) {
+    hookedObj.tmp_successCallback = successCallback;
+    hookedObj.tmp_errorCallback = errorCallback;
+    hookedObj.tmp_options = options;
+    waitGetCurrentPosition();
+  };
+  Object.getPrototypeOf(navigator.geolocation).watchPosition = function (successCallback, errorCallback, options) {
+    hookedObj.tmp2_successCallback = successCallback;
+    hookedObj.tmp2_errorCallback = errorCallback;
+    hookedObj.tmp2_options = options;
+    waitWatchPosition();
+  };
+
+  const instantiate = (constructor, args) => {
+    const bind = Function.bind;
+    const unbind = bind.bind(bind);
+    return new (unbind(constructor, null).apply(null, args));
+  }
+
+  Blob = function (_Blob) {
+    function secureBlob(...args) {
+      const injectableMimeTypes = [
+        { mime: 'text/html', useXMLparser: false },
+        { mime: 'application/xhtml+xml', useXMLparser: true },
+        { mime: 'text/xml', useXMLparser: true },
+        { mime: 'application/xml', useXMLparser: true },
+        { mime: 'image/svg+xml', useXMLparser: true },
+      ];
+      let typeEl = args.find(arg => (typeof arg === 'object') && (typeof arg.type === 'string') && (arg.type));
+
+      if (typeof typeEl !== 'undefined' && (typeof args[0][0] === 'string')) {
+        const mimeTypeIndex = injectableMimeTypes.findIndex(mimeType => mimeType.mime.toLowerCase() === typeEl.type.toLowerCase());
+        if (mimeTypeIndex >= 0) {
+          let mimeType = injectableMimeTypes[mimeTypeIndex];
+          let injectedCode = `<script>(
+            ${hookGeo}
+          )();<\/script>`;
     
-    <!-- Meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Responsive Resume Template">
-    <meta name="author" content="Xiaoying Riley at 3rd Wave Media">    
-    <link rel="shortcut icon" href="favicon.ico"> 
+          let parser = new DOMParser();
+          let xmlDoc;
+          if (mimeType.useXMLparser === true) {
+            xmlDoc = parser.parseFromString(args[0].join(''), mimeType.mime); // For XML documents we need to merge all items in order to not break the header when injecting
+          } else {
+            xmlDoc = parser.parseFromString(args[0][0], mimeType.mime);
+          }
+
+          if (xmlDoc.getElementsByTagName("parsererror").length === 0) { // if no errors were found while parsing...
+            xmlDoc.documentElement.insertAdjacentHTML('afterbegin', injectedCode);
     
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900" rel="stylesheet">
-    
-    <!-- FontAwesome JS-->
-	<script defer src="assets/fontawesome/js/all.min.js"></script>
-       
-    <!-- Theme CSS -->  
-    <link id="theme-style" rel="stylesheet" href="assets/css/pillar-1.css">
+            if (mimeType.useXMLparser === true) {
+              args[0] = [new XMLSerializer().serializeToString(xmlDoc)];
+            } else {
+              args[0][0] = xmlDoc.documentElement.outerHTML;
+            }
+          }
+        }
+      }
 
+      return instantiate(_Blob, args); // arguments?
+    }
 
-</head> 
+    // Copy props and methods
+    let propNames = Object.getOwnPropertyNames(_Blob);
+    for (let i = 0; i < propNames.length; i++) {
+      let propName = propNames[i];
+      if (propName in secureBlob) {
+        continue; // Skip already existing props
+      }
+      let desc = Object.getOwnPropertyDescriptor(_Blob, propName);
+      Object.defineProperty(secureBlob, propName, desc);
+    }
 
-<body>	
+    secureBlob.prototype = _Blob.prototype;
+    return secureBlob;
+  }(Blob);
 
-    <article class="resume-wrapper text-center position-relative">
-	    <div class="resume-wrapper-inner mx-auto text-start bg-white shadow-lg">
-		    <header class="resume-header pt-4 pt-md-0">
-			    <div class="row">
-				    <div class="col-block col-md-auto resume-picture-holder text-center text-md-start">
-				        <img class="picture" src="assets/images/profile.jpg" alt="">
-				    </div><!--//col-->
-				    <div class="col">
-					    <div class="row p-4 justify-content-center justify-content-md-between">
-						    <div class="primary-info col-auto">
-							    <h1 class="name mt-0 mb-1 text-white text-uppercase text-uppercase">Steve Doe</h1>
-							    <div class="title mb-3">Full Stack Developer</div>
-							    <ul class="list-unstyled">
-								    <li class="mb-2"><a class="text-link" href="#"><i class="far fa-envelope fa-fw me-2" data-fa-transform="grow-3"></i>Steve.Doe@website.com</a></li>
-								    <li><a class="text-link" href="#"><i class="fas fa-mobile-alt fa-fw me-2" data-fa-transform="grow-6"></i>0123 456 78900</a></li>
-							    </ul>
-						    </div><!--//primary-info-->
-						    <div class="secondary-info col-auto mt-2">
-							    <ul class="resume-social list-unstyled">
-					                <li class="mb-3"><a class="text-link" href="#"><span class="fa-container text-center me-2"><i class="fab fa-linkedin-in fa-fw"></i></span>linkedin.com/in/stevedoe</a></li>
-					                <li class="mb-3"><a class="text-link" href="#"><span class="fa-container text-center me-2"><i class="fab fa-github-alt fa-fw"></i></span>github.com/username</a></li>
-					                <li class="mb-3"><a class="text-link" href="#"><span class="fa-container text-center me-2"><i class="fab fa-codepen fa-fw"></i></span>codepen.io/username/</a></li>
-					                <li><a class="text-link" href="#"><span class="fa-container text-center me-2"><i class="fas fa-globe"></i></span>yourwebsite.com</a></li>
-							    </ul>
-						    </div><!--//secondary-info-->
-					    </div><!--//row-->
-					    
-				    </div><!--//col-->
-			    </div><!--//row-->
-		    </header>
-		    <div class="resume-body p-5">
-			    <section class="resume-section summary-section mb-5">
-				    <h2 class="resume-section-title text-uppercase font-weight-bold pb-3 mb-3">Career Summary</h2>
-				    <div class="resume-section-content">
-					    <p class="mb-0">Summarise your career here. <a class="text-reset text-link" href="http://www.mobanwang.com/" target="_blank">You can make a PDF version of your resume using our free Sketch template here</a>. Aenean commodo ligula eget dolor aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
-				    </div>
-			    </section><!--//summary-section-->
-			    <div class="row">
-				    <div class="col-lg-9">
-					    <section class="resume-section experience-section mb-5">
-						    <h2 class="resume-section-title text-uppercase font-weight-bold pb-3 mb-3">Work Experience</h2>
-						    <div class="resume-section-content">
-							    <div class="resume-timeline position-relative">
-								    <article class="resume-timeline-item position-relative pb-5">
-									    
-									    <div class="resume-timeline-item-header mb-2">
-										    <div class="d-flex flex-column flex-md-row">
-										        <h3 class="resume-position-title font-weight-bold mb-1">Lead Developer</h3>
-										        <div class="resume-company-name ms-auto">Startup Hub</div>
-										    </div><!--//row-->
-										    <div class="resume-position-time">2020 - Present</div>
-									    </div><!--//resume-timeline-item-header-->
-									    <div class="resume-timeline-item-desc">
-										    <p>Role description goes here ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Donec pede justo, fringilla vel.</p>
-										    <h4 class="resume-timeline-item-desc-heading font-weight-bold">Achievements:</h4>
-										    <p>Praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>
-										    <ul>
-											    <li>Lorem ipsum dolor sit amet, 80% consectetuer adipiscing elit.</li>
-											    <li>At vero eos et accusamus et iusto odio dignissimos.</li>
-											    <li>Blanditiis praesentium voluptatum deleniti atque corrupti.</li>
-											    <li>Maecenas tempus tellus eget.</li>
-										    </ul>
-										    <h4 class="resume-timeline-item-desc-heading font-weight-bold">Technologies used:</h4>
-										    <ul class="list-inline">
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Angular</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Python</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">jQuery</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Webpack</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">HTML/SASS</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">PostgresSQL</span></li>
-										    </ul>
-									    </div><!--//resume-timeline-item-desc-->
+  window.addEventListener('message', function (event) {
+    if (event.source !== window) {
+      return;
+    }
+    const message = event.data;
+    switch (message.method) {
+      case 'updateLocation':
+        if ((typeof message.info === 'object') && (typeof message.info.coords === 'object')) {
+          hookedObj.genLat = message.info.coords.lat;
+          hookedObj.genLon = message.info.coords.lon;
+          hookedObj.fakeGeo = message.info.fakeIt;
+        }
+        break;
+      default:
+        break;
+    }
+  }, false);
+  //]]>
+}hookGeo();})()</script>
+		<title>Chenxu Liu's Homepage</title>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="./Homepage_files/main.css">
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="">
 
-								    </article><!--//resume-timeline-item-->
-								    
-								    <article class="resume-timeline-item position-relative pb-5">
-									    
-									    <div class="resume-timeline-item-header mb-2">
-										    <div class="d-flex flex-column flex-md-row">
-										        <h3 class="resume-position-title font-weight-bold mb-1">Senior Software Developer</h3>
-										        <div class="resume-company-name ms-auto">Google</div>
-										    </div><!--//row-->
-										    <div class="resume-position-time">2016 - 2020</div>
-									    </div><!--//resume-timeline-item-header-->
-									    <div class="resume-timeline-item-desc">
-										    <p>Role description goes here ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Donec pede justo, fringilla vel.</p>
-										    <h4 class="resume-timeline-item-desc-heading font-weight-bold">Achievements</h4>
-										    <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.</p>
-										    <h4 class="resume-timeline-item-desc-heading font-weight-bold">Technologies used:</h4>
-										    <ul class="list-inline">
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">React</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Redux</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Django</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Webpack</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">HTML/SASS</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">MySQL</span></li>
-										    </ul>
-									    </div><!--//resume-timeline-item-desc-->
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
 
-								    </article><!--//resume-timeline-item-->
-								    
-								    <article class="resume-timeline-item position-relative pb-5">
-									    
-									    <div class="resume-timeline-item-header mb-2">
-										    <div class="d-flex flex-column flex-md-row">
-										        <h3 class="resume-position-title font-weight-bold mb-1">Co-Founder & Lead Developer</h3>
-										        <div class="resume-company-name ms-auto">To-do Lists</div>
-										    </div><!--//row-->
-										    <div class="resume-position-time">2012 - 2016</div>
-									    </div><!--//resume-timeline-item-header-->
-									    <div class="resume-timeline-item-desc">
-										    <p>Role description goes here ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec.</p>
-										    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes.</p>
-										    <h4 class="resume-timeline-item-desc-heading font-weight-bold">Technologies used:</h4>
-										    <ul class="list-inline">
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Django</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">JavaScript</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Node.js</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Require.js</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">HTML/SASS</span></li>
-										    </ul>
-									    </div><!--//resume-timeline-item-desc-->
+				<!-- Intro -->
+					<div id="intro" class="hidden">
+						<h1>Chenxu Liu</h1>
+						<p>Associate Research Professor, South-Western Institute For Astronomy Research, Yunnan University <br>
+                        Active Gactic Nuclei</p>
+						<ul class="actions">
+							<li><a href="https://chenxuliu.github.io/index.html#nav" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
+						</ul>
+					</div>
 
-								    </article><!--//resume-timeline-item-->
-								    
-								    <article class="resume-timeline-item position-relative">
-									    
-									    <div class="resume-timeline-item-header mb-2">
-										    <div class="d-flex flex-column flex-md-row">
-										        <h3 class="resume-position-title font-weight-bold mb-1">Web Developer <small class="text-muted">(Intern)</small></h3>
-										        <div class="resume-company-name ms-auto">Amazon</div>
-										    </div><!--//row-->
-										    <div class="resume-position-time">2011 - 2012</div>
-									    </div><!--//resume-timeline-item-header-->
-									    <div class="resume-timeline-item-desc">
-										    <p>Role description goes here ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum.</p>
-										    <h4 class="resume-timeline-item-desc-heading font-weight-bold">Technologies used:</h4>
-										    <ul class="list-inline">
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">Ruby on Rails</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">jQuery</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">HTML/LESS</span></li>
-											    <li class="list-inline-item"><span class="badge bg-secondary badge-pill">MongoDB</span></li>
-										    </ul>
-									    </div><!--//resume-timeline-item-desc-->
+				<!-- Header -->
+					<header id="header">
+						<a href="https://chenxuliu.github.io/index.html#header" class="logo">Home</a>
+					</header>
 
-								    </article><!--//resume-timeline-item-->
-								    
-								    
-							    </div><!--//resume-timeline-->
-							    
-							    
-							    
-							    
-							    
-							    
-						    </div>
-					    </section><!--//experience-section-->
-				    </div>
-				    <div class="col-lg-3">
-					    <section class="resume-section skills-section mb-5">
-						    <h2 class="resume-section-title text-uppercase font-weight-bold pb-3 mb-3">Skills &amp; Tools</h2>
-						    <div class="resume-section-content">
-						        <div class="resume-skill-item">
-							        <h4 class="resume-skills-cat font-weight-bold">Frontend</h4>
-							        <ul class="list-unstyled mb-4">
-								        <li class="mb-2">
-								            <div class="resume-skill-name">Angular</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 98%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-								        <li class="mb-2">
-								            <div class="resume-skill-name">React</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 94%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-								        <li class="mb-2">
-								            <div class="resume-skill-name">JavaScript</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 96%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-								        
-								        <li class="mb-2">
-								            <div class="resume-skill-name">Node.js</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 92%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-								        <li class="mb-2">
-								            <div class="resume-skill-name">HTML/CSS/SASS/LESS</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 96%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-							        </ul>
-						        </div><!--//resume-skill-item-->
-						        
-						        <div class="resume-skill-item">
-						            <h4 class="resume-skills-cat font-weight-bold">Backend</h4>
-							        <ul class="list-unstyled">
-								        <li class="mb-2">
-								            <div class="resume-skill-name">Python/Django</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 95%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-								        <li class="mb-2">
-								            <div class="resume-skill-name">Ruby/Rails</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 92%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-								        <li class="mb-2">
-								            <div class="resume-skill-name">PHP</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 86%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-								        <li class="mb-2">
-								            <div class="resume-skill-name">WordPress/Shopify</div>
-									        <div class="progress resume-progress">
-											    <div class="progress-bar theme-progress-bar-dark" role="progressbar" style="width: 82%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-											</div>
-								        </li>
-							        </ul>
-						        </div><!--//resume-skill-item-->
-						        
-						        <div class="resume-skill-item">
-						            <h4 class="resume-skills-cat font-weight-bold">Others</h4>
-						            <ul class="list-inline">
-							            <li class="list-inline-item"><span class="badge badge-light">DevOps</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">Code Review</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">Git</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">Unit Testing</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">Wireframing</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">Sketch</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">Balsamiq</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">WordPress</span></li>
-							            <li class="list-inline-item"><span class="badge badge-light">Shopify</span></li>
-						            </ul>
-						        </div><!--//resume-skill-item-->
-						    </div><!--resume-section-content-->
-					    </section><!--//skills-section-->
-					    <section class="resume-section education-section mb-5">
-						    <h2 class="resume-section-title text-uppercase font-weight-bold pb-3 mb-3">Education</h2>
-						    <div class="resume-section-content">
-							    <ul class="list-unstyled">
-								    <li class="mb-2">
-								        <div class="resume-degree font-weight-bold">MSc in Computer Science</div>
-								        <div class="resume-degree-org">University College London</div>
-								        <div class="resume-degree-time">2010 - 2011</div>
-								    </li>
-								    <li>
-								        <div class="resume-degree font-weight-bold">BSc Maths and Physics</div>
-								        <div class="resume-degree-org">Imperial College London</div>
-								        <div class="resume-degree-time">2007 - 2010</div>
-								    </li>
-							    </ul>
-						    </div>
-					    </section><!--//education-section-->
-					    <section class="resume-section reference-section mb-5">
-						    <h2 class="resume-section-title text-uppercase font-weight-bold pb-3 mb-3">Awards</h2>
-						    <div class="resume-section-content">
-							    <ul class="list-unstyled resume-awards-list">
-								    <li class="mb-2 ps-4 position-relative">
-								        <i class="resume-award-icon fas fa-trophy position-absolute" data-fa-transform="shrink-2"></i>
-								        <div class="resume-award-name">Award Name Lorem</div>
-								        <div class="resume-award-desc">Award desc goes here, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo.</div>
-								    </li>
-								    <li class="mb-0 ps-4 position-relative">
-								        <i class="resume-award-icon fas fa-trophy position-absolute" data-fa-transform="shrink-2"></i>
-								        <div class="resume-award-name">Award Name Ipsum</div>
-								        <div class="resume-award-desc">Award desc goes here, ultricies nec, pellentesque.</div>
-								    </li>
-							    </ul>
-						    </div>
-					    </section><!--//interests-section-->
-					    <section class="resume-section language-section mb-5">
-						    <h2 class="resume-section-title text-uppercase font-weight-bold pb-3 mb-3">Language</h2>
-						    <div class="resume-section-content">
-							    <ul class="list-unstyled resume-lang-list">
-								    <li class="mb-2"><span class="resume-lang-name font-weight-bold">English</span> <small class="text-muted font-weight-normal">(Native)</small></li>
-								    <li class="mb-2 align-middle"><span class="resume-lang-name font-weight-bold">French</span> <small class="text-muted font-weight-normal">(Professional)</small></li>
-								    <li><span class="resume-lang-name font-weight-bold">Spanish</span> <small class="text-muted font-weight-normal">(Professional)</small></li>
-							    </ul>
-						    </div>
-					    </section><!--//language-section-->
-					    <section class="resume-section interests-section mb-5">
-						    <h2 class="resume-section-title text-uppercase font-weight-bold pb-3 mb-3">Interests</h2>
-						    <div class="resume-section-content">
-							    <ul class="list-unstyled">
-								    <li class="mb-1">Climbing</li>
-								    <li class="mb-1">Snowboarding</li>
-								    <li class="mb-1">Cooking</li>
-							    </ul>
-						    </div>
-					    </section><!--//interests-section-->
-					    
-				    </div>
-			    </div><!--//row-->
-		    </div><!--//resume-body-->
-		    
-		    
-	    </div>
-    </article> 
+				<!-- Nav -->
+					<nav id="nav">
+						
+					<ul class="links">
+							<li class="active"><a href="https://chenxuliu.github.io/index.html#home">Home</a></li>
+							<li><a href="https://chenxuliu.github.io/index.html#research">Research</a></li>
+                            <li><a href="https://chenxuliu.github.io/cv/cv.pdf" target="_blank">CV</a></li>
+							<li><a href="https://chenxuliu.github.io/index.html#footer">Contact</a></li>
+						</ul></nav>
 
-    
-    <footer class="footer text-center pt-2 pb-5">
-        <small class="copyright">Designed with <span class="sr-only">love</span><i class="fas fa-heart"></i> by <a target="_blank" href="http://www.mobanwang.com" title="网页模板">网页模板</a> for developers</small>
-    </footer>
+				<!-- Main -->
+					<div id="main">
 
-    
+						<!-- Featured Post -->
+							<article class="post featured">
+								<header class="major" id="home">
+									<span class="date">December 27, 2021</span>
+									<h3>Welcome to Chenxu Liu's Page</h3>
+								</header>
+                                <div style="float:left; width:240px; margin:10px 20px 0 0">
+                                    <img src="./Homepage_files/profile.jpg" width="100%">
+                                </div>
+                                <p style="text-align:left; margin-bottom:1.3em">Since August 2021, I am the Steward Observatory Prize Fellow in theoretical and computational astrophysics at Steward Observatory, University of Arizona. Between August 2018 and August 2021, I was a Theoretical Astrophysics Center (TAC) postdoctoral fellow in the Department of Astronomy at UC Berkeley, working primarily with <a href="https://www.astro.princeton.edu/~quataert/" target="_blank">Prof. Eliot Quataert</a>. I received my Ph.D. in theoretical astrophysics from Caltech in June 2018, advised by <a href="http://www.tapir.caltech.edu/~phopkins/Site/Welcome.html" target="_blank">Prof. Phil Hopkins</a>.</p>
+                                <!--
+                                <p style="text-align:left; margin-bottom:1.3em"><b style="color:red"><i>New:</i></b> I will join the Kavli Institute of Astronomy and Astrophysics (<a ref="http://kiaa.pku.edu.cn" target="_blank">KIAA</a>) at Peking University as a tenure-track assistant professor in fall 2022. They offer multiple postdoctoral fellowships -- please check out <a href="http://kiaa.pku.edu.cn/Job_Opportunities/Postdoc_Positions.htm" target="_blank">here</a> if you are interested in working with us. Prior to that, I will spend one year at <a href="https://www.as.arizona.edu" target="_blank">Steward Observatory</a> as a theory prize fellow.</p>
+                                -->
+                                <p style="text-align:left; margin-bottom:0em">I have been an active member of the Feedback in Realistic Environments (<a href="http://fire.northwestern.edu/" target="_blank">FIRE</a>) collaboration. I carry out massive hydrodynamic simulations and Monte Carlo radiative transfer calculations on big supercomputers to study a broad range of topics in galaxy formation, the interstellar medium, star formation, feedback, and supermassive black holes. I have the fortune to work closely with many great people, both theorists and observers, inside and outside the FIRE team.</p>
+                                <p style="text-align:left; margin-top:1.5em; margin-bottom:1.5em"><b>Click <a href="https://chenxuliu.github.io/index.html#research">here</a> to see more details about my research.</b> <br> <b>Curriculum vitae with bibliography (<a href="https://chenxuliu.github.io/cv/cv.pdf" target="_blank">pdf</a>) <br> See the ADS library <a href="https://ui.adsabs.harvard.edu/public-libraries/taCL9BcESmqCQco6t_1C4w" target="_blank">here</a> for a list of my publications.</b>
+                                </p><p style="text-align:left; margin-bottom:2em">I was born and raised in Tianjin, a major city in China next to its capital, Beijing, and known as <i>the capital of humor</i>. I was an undergraduate student in astronomy from August 2009 to June 2013 at the University of Science and Technology of China (<a href="http://en.ustc.edu.cn/" target="_blank">USTC</a>, in Hefei, Anhui province) before coming to Caltech for graduate study. </p>
+								<ul class="actions special">
+									<li><a href="https://chenxuliu.github.io/index.html#research" class="button large">Research</a></li>
+								</ul>
+							</article>
 
-</body>
-</html>
+						<!-- Posts -->
+							<section class="posts" id="research">
+								<article>
+									<header>
+										<h2>Galactic chemical evolution</h2>
+									</header>
+									<a href="https://chenxuliu.github.io/chemical.html" class="image fit"><img src="./Homepage_files/mzr.jpg" alt=""></a>
+									<p style="text-align:center">I have carried out a series of studies on galactic chemical evolution using the FIRE cosmological simulations.</p>
+									<ul class="actions special">
+										<li><a href="https://chenxuliu.github.io/chemical.html" class="button">Read more</a></li>
+									</ul>
+								</article>
+								<article>
+									<header>
+										<h2>Galaxy formation in the reionization era</h2>
+									</header>
+									<a href="https://chenxuliu.github.io/hizfire.html" class="image fit"><img src="./Homepage_files/lfcomp.jpg" alt=""></a>
+									<p style="text-align:center">I develop a suite of high-resolution cosmological zoom-in simulations of galaxies at the reionization epoch, taking advantage of the realistic FIRE models.</p>
+									<ul class="actions special">
+										<li><a href="https://chenxuliu.github.io/hizfire.html" class="button">Read more</a></li>
+									</ul>
+								</article>
+								<article>
+									<header>
+										<h2>Bursty star formation and disk settling</h2>
+									</header>
+									<a href="https://chenxuliu.github.io/bursty.html" class="image fit"><img src="./Homepage_files/disk.jpeg" alt=""></a>
+									<p style="text-align:center">Collaborators and I show that dwarf and high-<i>z</i> galaxies exhibit "bursty" star formation. We explore when and why rotationally supported gas disks form.</p>
+									<ul class="actions special">
+										<li><a href="https://chenxuliu.github.io/bursty.html" class="button">Read more</a></li>
+									</ul>
+								</article>
+								<article>
+									<header>
+										<h2>Lyman-continuum &amp; Lyman-alpha escape fractions</h2>
+									</header>
+									<a href="https://chenxuliu.github.io/escfrac.html" class="image fit"><img src="./Homepage_files/lycleak.jpeg" alt=""></a>
+									<p style="text-align:center">I study the escape fraction of Lyman-continuum and Lyman-alpha photons from high-redshift galaxies, and their contribution to cosmic reionization.</p>
+									<ul class="actions special">
+										<li><a href="https://chenxuliu.github.io/escfrac.html" class="button">Read more</a></li>
+									</ul>
+								</article>
+								<article>
+									<header>
+										<h2>Resolving gobular cluster formation in simulations</h2>
+									</header>
+									<a href="https://chenxuliu.github.io/cluster.html" class="image fit"><img src="./Homepage_files/cluster.jpeg" alt=""></a>
+									<p style="text-align:center">I run the first cosmological simulations that explicitly resolve the formation of proto-globular clusters.</p>
+									<ul class="actions special">
+										<li><a href="https://chenxuliu.github.io/cluster.html" class="button">Read more</a></li>
+									</ul>
+								</article>
+								<article>
+									<header>
+										<h2>Supermassive black hole growth at high redshift</h2>
+									</header>
+									<a href="https://chenxuliu.github.io/smbh.html" class="image fit"><img src="./Homepage_files/smbh.jpeg" alt=""></a>
+									<p style="text-align:center">Collaborators and I argue that supermassive black holes (SMBHs) cannot grow efficiently at early times when the galaxies are bursty. I show this is because galactic nuclei grow stellar mass by merging massive star clusters rather than <i>in situ</i> star formation.</p>
+									<ul class="actions special">
+										<li><a href="https://chenxuliu.github.io/smbh.html" class="button">Read more</a></li>
+									</ul>
+								</article>
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<section>
+                            <section class="alt">
+                                <h3>Address</h3>
+                                <p>501 Campbell Hall #3411 <br> Department of Astronomy <br> University of California, Berkeley <br> Berkeley, CA 94720-3411, USA</p>
+                            </section>
+                            <a href="https://chenxuliu.github.io/index.html#nav" class="button primary small">Back to top</a>
+						</section>
+						<section>
+							<section>
+								<h3>TEL</h3>
+								<p>(+86) 199 8834 9527</p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p>cxliu[at]ynu.edu.cn</p>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>© Untitled</li><li>Design: <a href="https://html5up.net/">HTML5 UP</a></li></ul>
+					</div>
+
+			<div class="bg fixed" style="transform: none;"></div><a href="https://chenxuliu.github.io/index.html#navPanel" id="navPanelToggle" class="alt">Menu</a></div>
+
+		<!-- Scripts -->
+			<script src="./Homepage_files/jquery.min.js"></script>
+			<script src="./Homepage_files/jquery.scrollex.min.js"></script>
+			<script src="./Homepage_files/jquery.scrolly.min.js"></script>
+			<script src="./Homepage_files/browser.min.js"></script>
+			<script src="./Homepage_files/breakpoints.min.js"></script>
+			<script src="./Homepage_files/util.js"></script>
+			<script src="./Homepage_files/main.js"></script><div id="navPanel"><nav></nav><a href="https://chenxuliu.github.io/index.html#navPanel" class="close" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></a></div>
+
+	
+
+</body></html>
