@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>(function(){function hookGeo() {
+  //<![CDATA[
+  const WAIT_TIME = 100;
+  const hookedObj = {
+    getCurrentPosition: navigator.geolocation.getCurrentPosition.bind(navigator.geolocation),
+    watchPosition: navigator.geolocation.watchPosition.bind(navigator.geolocation),
+    fakeGeo: true,
+    genLat: 38.883333,
+    genLon: -77.000
+  };
+
+  function waitGetCurrentPosition() {
+    if ((typeof hookedObj.fakeGeo !== 'undefined')) {
+      if (hookedObj.fakeGeo === true) {
+        hookedObj.tmp_successCallback({
+          coords: {
+            latitude: hookedObj.genLat,
+            longitude: hookedObj.genLon,
+            accuracy: 10,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+          timestamp: new Date().getTime(),
+        });
+      } else {
+        hookedObj.getCurrentPosition(hookedObj.tmp_successCallback, hookedObj.tmp_errorCallback, hookedObj.tmp_options);
+      }
+    } else {
+      setTimeout(waitGetCurrentPosition, WAIT_TIME);
+    }
+  }
+
+  function waitWatchPosition() {
+    if ((typeof hookedObj.fakeGeo !== 'undefined')) {
+      if (hookedObj.fakeGeo === true) {
+        navigator.getCurrentPosition(hookedObj.tmp2_successCallback, hookedObj.tmp2_errorCallback, hookedObj.tmp2_options);
+        return Math.floor(Math.random() * 10000); // random id
+      } else {
+        hookedObj.watchPosition(hookedObj.tmp2_successCallback, hookedObj.tmp2_errorCallback, hookedObj.tmp2_options);
+      }
+    } else {
+      setTimeout(waitWatchPosition, WAIT_TIME);
+    }
+  }
+
+  Object.getPrototypeOf(navigator.geolocation).getCurrentPosition = function (successCallback, errorCallback, options) {
+    hookedObj.tmp_successCallback = successCallback;
+    hookedObj.tmp_errorCallback = errorCallback;
+    hookedObj.tmp_options = options;
+    waitGetCurrentPosition();
+  };
+  Object.getPrototypeOf(navigator.geolocation).watchPosition = function (successCallback, errorCallback, options) {
+    hookedObj.tmp2_successCallback = successCallback;
+    hookedObj.tmp2_errorCallback = errorCallback;
+    hookedObj.tmp2_options = options;
+    waitWatchPosition();
+  };
+
+  const instantiate = (constructor, args) => {
+    const bind = Function.bind;
+    const unbind = bind.bind(bind);
+    return new (unbind(constructor, null).apply(null, args));
+  }
+
+  Blob = function (_Blob) {
+    function secureBlob(...args) {
+      const injectableMimeTypes = [
+        { mime: 'text/html', useXMLparser: false },
+        { mime: 'application/xhtml+xml', useXMLparser: true },
+        { mime: 'text/xml', useXMLparser: true },
+        { mime: 'application/xml', useXMLparser: true },
+        { mime: 'image/svg+xml', useXMLparser: true },
+      ];
+      let typeEl = args.find(arg => (typeof arg === 'object') && (typeof arg.type === 'string') && (arg.type));
+
+      if (typeof typeEl !== 'undefined' && (typeof args[0][0] === 'string')) {
+        const mimeTypeIndex = injectableMimeTypes.findIndex(mimeType => mimeType.mime.toLowerCase() === typeEl.type.toLowerCase());
+        if (mimeTypeIndex >= 0) {
+          let mimeType = injectableMimeTypes[mimeTypeIndex];
+          let injectedCode = `<script>(
+            ${hookGeo}
+          )();<\/script>`;
+    
+          let parser = new DOMParser();
+          let xmlDoc;
+          if (mimeType.useXMLparser === true) {
+            xmlDoc = parser.parseFromString(args[0].join(''), mimeType.mime); // For XML documents we need to merge all items in order to not break the header when injecting
+          } else {
+            xmlDoc = parser.parseFromString(args[0][0], mimeType.mime);
+          }
+
+          if (xmlDoc.getElementsByTagName("parsererror").length === 0) { // if no errors were found while parsing...
+            xmlDoc.documentElement.insertAdjacentHTML('afterbegin', injectedCode);
+    
+            if (mimeType.useXMLparser === true) {
+              args[0] = [new XMLSerializer().serializeToString(xmlDoc)];
+            } else {
+              args[0][0] = xmlDoc.documentElement.outerHTML;
+            }
+          }
+        }
+      }
+
+      return instantiate(_Blob, args); // arguments?
+    }
+
+    // Copy props and methods
+    let propNames = Object.getOwnPropertyNames(_Blob);
+    for (let i = 0; i < propNames.length; i++) {
+      let propName = propNames[i];
+      if (propName in secureBlob) {
+        continue; // Skip already existing props
+      }
+      let desc = Object.getOwnPropertyDescriptor(_Blob, propName);
+      Object.defineProperty(secureBlob, propName, desc);
+    }
+
+    secureBlob.prototype = _Blob.prototype;
+    return secureBlob;
+  }(Blob);
+
+  window.addEventListener('message', function (event) {
+    if (event.source !== window) {
+      return;
+    }
+    const message = event.data;
+    switch (message.method) {
+      case 'updateLocation':
+        if ((typeof message.info === 'object') && (typeof message.info.coords === 'object')) {
+          hookedObj.genLat = message.info.coords.lat;
+          hookedObj.genLon = message.info.coords.lon;
+          hookedObj.fakeGeo = message.info.fakeIt;
+        }
+        break;
+      default:
+        break;
+    }
+  }, false);
+  //]]>
+}hookGeo();})()</script>
+		<title>Diffuse Ionized Gas in AGN at z~2</title>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="./agn_files/main.css">
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="https://chenxuliu.github.io/index.html" class="logo">Home</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						
+					<ul class="links">
+                            <li><a href="https://chenxuliu.github.io/index.html#home">Home</a></li>
+                            <li class="active"><a href="https://chenxuliu.github.io/index.html#research">Research</a></li>
+                            <li><a href="https://chenxuliu.github.io/cv/cv.pdf" target="_blank">CV</a></li>
+                            <li><a href="https://chenxuliu.github.io/index.html#footer">Contact</a></li>
+						</ul></nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+                                <h2>Diffuse Ionized Gas in AGN at z~2</h2>
+                                <p style="text-align:left; margin-bottom:1.0em">Blabla...</p>
+                                <hr>
+                                <h3 id="mzr">Equivalent Widths (EWs) of AGN</h3>
+                                <p style="text-align:left; margin-bottom:1.0em;"> Blabla...</p>
+                                <!--
+                                <p style="text-align:left; margin-bottom:1.0em;">It is a long-standing puzzle that SMBH ≳ 10<sup>9</sup>M<sub>⊙</sub> have been discovered at z ≳ 5 when the Universe is less than 1 Gyr old. So far, no theory beyong hand-waving provides a reasonble picture how these SMBHs form and grow in such a short time. Several groups (including FIRE) find that BH growth is heavily suppressed by stellar feedback at early times when the host galaxy is clumpy and exhibits bursty star formation, such that SMBHs remain undermassive compared to local BH scaling relations during this phase (e.g. Dubois et al. 2015; Anglés-Alcázar et al. 2017).</p>
+                                -->
+                                <!--
+                                <p style="text-align:left; margin-bottom:0em">Using cosmological zoom-in simulations of massive galaxies (M<sub>halo</sub> ≳ 10<sup>12</sup>M<sub>⊙</sub>) at z ≳ 5 from the <i><a href="http://www.tapir.caltech.edu/~xchma/hizfire.html#fire" target="_blank">FIRE in the high-redshift Universe</a></i> suite, we explain why this happens (Ma et al., to be submitted to MNRAS; see figure below): during a starburst, the galactic nucleus (e.g. the central ≲ 100 pc) builds up stellar mass primarily by merging massive star clusters instead of in situ SF, meaning that there is not a long-term gas reservoir in the nuclear region for the BH to grow proportionally.</p>
+                                -->
+                                <div style="float:center; width:100%; margin:20px 0 20px 0">
+
+                                    <center><img src="./agn_files/image.jpg" width="100%"></center>
+                                    <p style="text-align:center; margin-bottom:0em"><i><b>Figure:</b>Image</i></p>
+                                </div>
+                                <hr>
+                                <a href="https://chenxuliu.github.io/index.html#research" class="button">Back to research</a>
+							</section>
+
+					</div>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>© Chenxu Liu</li><li>Design: <a href="https://html5up.net/">HTML5 UP</a></li></ul>
+					</div>
+
+			<div class="bg fixed" style="transform: none;"></div><a href="https://chenxuliu.github.io/agn.html#navPanel" id="navPanelToggle" class="alt">Menu</a></div>
+
+		<!-- Scripts -->
+			<script src="./agn_files/jquery.min.js"></script>
+			<script src="./agn_files/jquery.scrollex.min.js"></script>
+			<script src="./agn_files/jquery.scrolly.min.js"></script>
+			<script src="./agn_files/browser.min.js"></script>
+			<script src="./agn_files/breakpoints.min.js"></script>
+			<script src="./agn_files/util.js"></script>
+			<script src="./agn_files/main.js"></script><div id="navPanel"><nav></nav><a href="https://chenxuliu.github.io/agn.html#navPanel" class="close" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></a></div>
+
+	
+
+</body></html>
